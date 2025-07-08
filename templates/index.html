@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Анализ эмоций</title>
+</head>
+<body>
+    <h1>Введите текст для анализа:</h1>
+    <form action="/predict" method="POST">
+        <textarea name="text" rows="4" cols="50"></textarea><br>
+        <input type="submit" value="Определить эмоцию">
+    </form>
+    <div id="result"></div>
+    <script>
+        document.querySelector("form").addEventListener("submit", async (e) => {
+            e.preventDefault();
+            const response = await fetch("/predict", {
+                method: "POST",
+                body: new FormData(e.target)
+            });
+            const data = await response.json();
+            document.getElementById("result").innerHTML = `Эмоция: ${data.emotion}`;
+        });
+    </script>
+</body>
+</html>
