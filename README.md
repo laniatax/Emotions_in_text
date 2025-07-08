@@ -27,23 +27,30 @@ flask>=2.0.0
 nltk>=3.6.0
 joblib>=1.0.0
 ```
+
 ###2. Загрузка данных NLTK
+
 ```
 import nltk
 nltk.download('stopwords')
 nltk.download('wordnet')
 nltk.download('omw-1.4')
 ```
+
 ###3. Обучение модели
+
 ```
 python train.py
 ```
+
 ###4. Запуск веб-интерфейса
+
 ```
 python app.py
 ```
 
 ##Структура проекта
+
 ```
 sentiment-analysis/
 ├── train.py            # Скрипт обучения модели
