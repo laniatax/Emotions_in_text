@@ -1,24 +1,228 @@
 <!DOCTYPE html>
-<html>
+<html lang="ru">
 <head>
-    <title>Анализ эмоций</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Анализатор тональности текста</title>
+    <style>
+        :root {
+            --primary: #7E57C2;  /* Красивый фиолетовый */
+            --secondary: #5E35B1; /* Более глубокий фиолетовый */
+            --light: #f8f9fa;
+            --dark: #212529;
+            --success: #BA68C8;   /* Сиреневый */
+            --danger: #D81B60;    /* Розово-малиновый */
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background-color: #f5f7fa;
+            color: var(--dark);
+            line-height: 1.6;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 30px;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+        }
+
+        h1 {
+            color: var(--primary);
+            margin-bottom: 10px;
+            font-size: 2.2rem;
+        }
+
+        .subtitle {
+            color: #6c757d;
+            font-size: 1.1rem;
+        }
+
+        .input-group {
+            margin-bottom: 25px;
+        }
+
+        textarea {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e9ecef;
+            border-radius: 10px;
+            resize: none;
+            font-size: 1rem;
+            transition: all 0.3s;
+            min-height: 150px;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary);
+            box-shadow: 0 0 0 3px rgba(126, 87, 194, 0.2);
+        }
+
+        .btn {
+            display: inline-block;
+            background: var(--primary);
+            color: white;
+            border: none;
+            padding: 12px 25px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            width: 100%;
+        }
+
+        .btn:hover {
+            background: var(--secondary);
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(126, 87, 194, 0.3);
+        }
+
+        .result-container {
+            margin-top: 30px;
+            padding: 20px;
+            border-radius: 10px;
+            text-align: center;
+            display: none;
+        }
+
+        .positive {
+            background-color: rgba(186, 104, 200, 0.1);
+            border: 1px solid var(--success);
+            color: #6A1B9A;
+        }
+
+        .negative {
+            background-color: rgba(216, 27, 96, 0.1);
+            border: 1px solid var(--danger);
+            color: #AD1457;
+        }
+
+        .result-title {
+            font-weight: 600;
+            margin-bottom: 10px;
+            font-size: 1.2rem;
+        }
+
+        .result-value {
+            font-size: 1.8rem;
+            font-weight: 700;
+        }
+
+        .examples {
+            margin-top: 40px;
+            font-size: 0.9rem;
+            color: #6c757d;
+        }
+
+        .examples h3 {
+            margin-bottom: 10px;
+            color: var(--dark);
+        }
+
+        .example-text {
+            cursor: pointer;
+            padding: 8px 12px;
+            margin: 5px 0;
+            border-radius: 5px;
+            background: #f8f9fa;
+            transition: all 0.2s;
+        }
+
+        .example-text:hover {
+            background: #e9ecef;
+        }
+
+        footer {
+            margin-top: 40px;
+            text-align: center;
+            font-size: 0.8rem;
+            color: #6c757d;
+        }
+    </style>
 </head>
 <body>
-    <h1>Введите текст для анализа:</h1>
-    <form action="/predict" method="POST">
-        <textarea name="text" rows="4" cols="50"></textarea><br>
-        <input type="submit" value="Определить эмоцию">
-    </form>
-    <div id="result"></div>
+    <div class="container">
+        <header>
+            <h1>Анализатор тональности текста</h1>
+            <p class="subtitle">Определяет эмоциональную окраску текста на английском языке</p>
+        </header>
+
+        <form id="sentimentForm" action="/predict" method="POST">
+            <div class="input-group">
+                <textarea name="text" id="textInput" placeholder="Введите текст на английском языке..."></textarea>
+            </div>
+            <button type="submit" class="btn">Анализировать</button>
+        </form>
+
+        <div id="result" class="result-container">
+            <div class="result-title">Результат анализа:</div>
+            <div id="resultValue" class="result-value"></div>
+        </div>
+
+        <div class="examples">
+            <h3>Примеры для тестирования:</h3>
+            <div class="example-text" onclick="document.getElementById('textInput').value = 'I love this product! It works perfectly and looks amazing.'">
+                "I love this product! It works perfectly and looks amazing."
+            </div>
+            <div class="example-text" onclick="document.getElementById('textInput').value = 'This is the worst experience I\\'ve ever had. Never again!'">
+                "This is the worst experience I've ever had. Never again!"
+            </div>
+            <div class="example-text" onclick="document.getElementById('textInput').value = 'The service was average, nothing special but not terrible either.'">
+                "The service was average, nothing special but not terrible either."
+            </div>
+        </div>
+    </div>
+
+    <footer>
+        <p>Machine Learning Project © 2025 | by Maklyukova Alina Alexandrovna</p>
+    </footer>
+
     <script>
-        document.querySelector("form").addEventListener("submit", async (e) => {
+        document.getElementById('sentimentForm').addEventListener('submit', function(e) {
             e.preventDefault();
-            const response = await fetch("/predict", {
-                method: "POST",
-                body: new FormData(e.target)
+            const formData = new FormData(this);
+
+            fetch('/predict', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                const resultDiv = document.getElementById('result');
+                const resultValue = document.getElementById('resultValue');
+
+                resultValue.textContent = data.emotion;
+
+                if(data.emotion === 'позитив') {
+                    resultDiv.className = 'result-container positive';
+                } else {
+                    resultDiv.className = 'result-container negative';
+                }
+
+                resultDiv.style.display = 'block';
+            })
+            .catch(error => {
+                console.error('Error:', error);
             });
-            const data = await response.json();
-            document.getElementById("result").innerHTML = `Эмоция: ${data.emotion}`;
         });
     </script>
 </body>
